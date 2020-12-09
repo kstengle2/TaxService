@@ -8,14 +8,14 @@ namespace TaxService.TaxCalculators
 {
     public class NewCalculator : ITaxCalculator
     {
-        public double GetShippingCost(string zip, double orderTotal)
+        public double GetTotalTax(string zip, double orderTotal)
         {
             throw new NotImplementedException();
         }
 
         public double GetTaxRate(string zip)
         {
-            return 5.3;
+            throw new NotImplementedException();
         }
     }
 }

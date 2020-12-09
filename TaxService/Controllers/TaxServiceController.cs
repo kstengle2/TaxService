@@ -8,7 +8,7 @@ using TaxService.TaxCalculators.Interface;
 namespace TaxService.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class TaxServiceController : ControllerBase
     {
         public delegate ITaxCalculator TaxCalcMapper(string key);
@@ -16,21 +16,18 @@ namespace TaxService.Controllers
         public TaxServiceController(TaxCalcMapper taxCalculator)
         {
             _taxCalculator = taxCalculator;
-        }
-        public IActionResult Index()
-        {
-            return Ok(new { results = _taxCalculator("NewCalculator").GetTaxRate("07747") });            
-        }
-
+        }        
         [HttpGet("GetTaxRate")]
-        public IActionResult GetTaxRate(int orderId)
-        {
-            return Ok(new { results = _taxCalculator("NewCalculator").GetTaxRate("07747")});
+        [Route("GetTaxRate")]
+        public IActionResult GetTaxRate(string zip)
+        {            
+            return Ok(new { results = _taxCalculator("TaxJar").GetTaxRate(zip)});
         }
-        [HttpGet("GetShippingCost")]
-        public IActionResult GetShippingCost(double TaxRate, double OrderTotal)
+        [HttpGet("GetTotalTax")]
+        [Route("GetTotalTax")]
+        public IActionResult GetTotalTax(string zip, double OrderTotal)
         {
-            return Ok(new { results = _taxCalculator("TaxJar").GetTaxRate("07747") });
+            return Ok(new { results = _taxCalculator("TaxJar").GetTotalTax(zip, OrderTotal) });
         }
     }
 }

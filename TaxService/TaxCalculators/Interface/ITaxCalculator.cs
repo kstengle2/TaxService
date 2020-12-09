@@ -7,7 +7,7 @@ namespace TaxService.TaxCalculators.Interface
 {
     public interface ITaxCalculator
     {
-        double GetShippingCost(string zip, double orderTotal);
+        double GetTotalTax(string zip, double orderTotal);
         double GetTaxRate(string zip);
     }
 }
