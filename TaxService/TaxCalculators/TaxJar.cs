@@ -33,22 +33,28 @@ namespace TaxService.TaxCalculators
         }
         private double CallTaxJar(string url)
         {
-            HttpWebRequest myHttpWebRequest = null;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            myHttpWebRequest = (HttpWebRequest)HttpWebRequest.Create(url);
-            myHttpWebRequest.Timeout = 15000;
-            myHttpWebRequest.Method = "GET";
-            myHttpWebRequest.ContentType = "application/json";
-            myHttpWebRequest.Headers.Add("Authorization", "Bearer " + taxJarApiKey);
-
-            WebResponse myWebResponse = myHttpWebRequest.GetResponse();
-            string result = "";
-            using (var reader = new StreamReader(myWebResponse.GetResponseStream()))
+            try
             {
-                result = reader.ReadToEnd();
+                HttpWebRequest myHttpWebRequest = null;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                myHttpWebRequest = (HttpWebRequest)HttpWebRequest.Create(url);
+                myHttpWebRequest.Timeout = 15000;
+                myHttpWebRequest.Method = "GET";
+                myHttpWebRequest.ContentType = "application/json";
+                myHttpWebRequest.Headers.Add("Authorization", "Bearer " + taxJarApiKey);
+
+                WebResponse myWebResponse = myHttpWebRequest.GetResponse();
+                string result = "";
+                using (var reader = new StreamReader(myWebResponse.GetResponseStream()))
+                {
+                    result = reader.ReadToEnd();
+                }
+                var jsonObject = JsonConvert.DeserializeObject<Rootobject>(result).rate;
+                return double.Parse(jsonObject.combined_rate);
+            }catch(Exception ex)
+            {
+                throw ex;
             }
-            var jsonObject = JsonConvert.DeserializeObject<Rootobject>(result).rate;
-            return double.Parse(jsonObject.combined_rate);
         }
 
         public class Rootobject

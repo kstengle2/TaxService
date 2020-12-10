@@ -20,14 +20,25 @@ namespace TaxService.Controllers
         [HttpGet("GetTaxRate")]
         [Route("GetTaxRate")]
         public IActionResult GetTaxRate(string zip)
-        {            
-            return Ok(new { results = _taxCalculator("TaxJar").GetTaxRate(zip)});
+        {
+            if (Utilities.IsUSZipCode(zip)) { 
+                return Ok(new { results = _taxCalculator("TaxJar").GetTaxRate(zip)});
+            }else {
+                return Ok(new { results = "Invalid Zip Code" });
+            }
         }
         [HttpGet("GetTotalTax")]
         [Route("GetTotalTax")]
         public IActionResult GetTotalTax(string zip, double OrderTotal)
         {
-            return Ok(new { results = _taxCalculator("TaxJar").GetTotalTax(zip, OrderTotal) });
+            if (Utilities.IsUSZipCode(zip))
+            {
+                return Ok(new { results = _taxCalculator("TaxJar").GetTotalTax(zip, OrderTotal) });
+            }
+            else
+            {
+                return Ok(new { results = "Invalid Zip Code" });
+            }
         }
     }
 }
