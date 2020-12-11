@@ -5,6 +5,7 @@ using Moq;
 using System;
 using System.Configuration;
 using System.IO;
+using TaxService.Controllers;
 using TaxService.TaxCalculators;
 using TaxService.TaxCalculators.Interface;
 using Xunit;
@@ -45,6 +46,71 @@ namespace XUnitTestTaxService
             Assert.Equal(orderTotal * taxrateNJ, totaltax);
 
         }
-        
+        [Fact]
+        public void TaxJar_GetTaxRateController_InValidZip()
+        {
+            var mock = new Mock<TaxCalcMapper>();
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+            mock.Setup(x => x.Invoke(It.IsAny<string>())).Returns(new TaxJar(configuration));            
+            var taxServiceController = new TaxServiceController(mock.Object);
+            var response = taxServiceController.GetTaxRate(zip: "123");
+            var payload = response as OkObjectResult;
+            Assert.Equal(200, payload.StatusCode);
+            Assert.Contains("Invalid Zip Code", payload.Value.ToString());                  
+        }
+        [Fact]
+        public void TaxJar_GetTaxRateController_ValidZip()
+        {
+            var mock = new Mock<TaxCalcMapper>();
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+            mock.Setup(x => x.Invoke(It.IsAny<string>())).Returns(new TaxJar(configuration));
+            var taxServiceController = new TaxServiceController(mock.Object);
+            var response = taxServiceController.GetTaxRate(zip: "07747");
+            var payload = response as OkObjectResult;                        
+            Assert.Equal(200, payload.StatusCode);
+            Assert.Contains(taxrateNJ.ToString(), payload.Value.ToString());
+            
+        }
+        [Fact]
+        public void TaxJar_GetTotalTaxController_InValidZip()
+        {
+            var mock = new Mock<TaxCalcMapper>();
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+            mock.Setup(x => x.Invoke(It.IsAny<string>())).Returns(new TaxJar(configuration));
+            var taxServiceController = new TaxServiceController(mock.Object);
+            var response = taxServiceController.GetTotalTax(zip: "123", OrderTotal: 100);
+            var payload = response as OkObjectResult;
+            Assert.Equal(200, payload.StatusCode);
+            Assert.Contains("Invalid Zip Code", payload.Value.ToString());
+        }
+        [Fact]
+        public void TaxJar_GetTotalTaxController_ValidZip()
+        {
+            var mock = new Mock<TaxCalcMapper>();
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+            mock.Setup(x => x.Invoke(It.IsAny<string>())).Returns(new TaxJar(configuration));
+            var taxServiceController = new TaxServiceController(mock.Object);
+            var response = taxServiceController.GetTotalTax(zip: "07747", OrderTotal: 100);
+            var payload = response as OkObjectResult;
+            Assert.Equal(200, payload.StatusCode);
+            Assert.Contains((taxrateNJ*100).ToString(), payload.Value.ToString());
+
+        }
     }
 }
