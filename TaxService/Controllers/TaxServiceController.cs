@@ -1,8 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TaxService.TaxCalculators.Interface;
 
 namespace TaxService.Controllers
@@ -21,24 +17,21 @@ namespace TaxService.Controllers
         [Route("GetTaxRate")]
         public IActionResult GetTaxRate(string zip)
         {
-            if (Utilities.IsUSZipCode(zip)) { 
-                return Ok(new { results = _taxCalculator("TaxJar").GetTaxRate(zip)});
-            }else {
-                return Ok(new { results = "Invalid Zip Code" });
-            }
+            return Utilities.IsUSZipCode(zip) ?
+                Ok(new { results = _taxCalculator(TaxCalculators.CalculatorList.TaxJar).GetTaxRate(zip) })
+            :
+                Ok(new { results = "Invalid Zip Code" });
+            
         }
         [HttpGet("GetTotalTax")]
         [Route("GetTotalTax")]
-        public IActionResult GetTotalTax(string zip, double OrderTotal)
+        public IActionResult GetTotalTax(string zip, double orderTotal)
         {
-            if (Utilities.IsUSZipCode(zip))
-            {
-                return Ok(new { results = _taxCalculator("TaxJar").GetTotalTax(zip, OrderTotal) });
-            }
-            else
-            {
-                return Ok(new { results = "Invalid Zip Code" });
-            }
+            return Utilities.IsUSZipCode(zip) ?
+                Ok(new { results = _taxCalculator(TaxCalculators.CalculatorList.TaxJar).GetTotalTax(zip, orderTotal) })
+                :            
+                Ok(new { results = "Invalid Zip Code" });
+            
         }
     }
 }

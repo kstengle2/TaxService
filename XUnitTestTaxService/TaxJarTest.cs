@@ -90,7 +90,7 @@ namespace XUnitTestTaxService
                 .Build();
             mock.Setup(x => x.Invoke(It.IsAny<string>())).Returns(new TaxJar(configuration));
             var taxServiceController = new TaxServiceController(mock.Object);
-            var response = taxServiceController.GetTotalTax(zip: "123", OrderTotal: 100);
+            var response = taxServiceController.GetTotalTax(zip: "123", orderTotal: 100);
             var payload = response as OkObjectResult;
             Assert.Equal(200, payload.StatusCode);
             Assert.Contains("Invalid Zip Code", payload.Value.ToString());
@@ -106,7 +106,7 @@ namespace XUnitTestTaxService
                 .Build();
             mock.Setup(x => x.Invoke(It.IsAny<string>())).Returns(new TaxJar(configuration));
             var taxServiceController = new TaxServiceController(mock.Object);
-            var response = taxServiceController.GetTotalTax(zip: "07747", OrderTotal: 100);
+            var response = taxServiceController.GetTotalTax(zip: "07747", orderTotal: 100);
             var payload = response as OkObjectResult;
             Assert.Equal(200, payload.StatusCode);
             Assert.Contains((taxrateNJ*100).ToString(), payload.Value.ToString());

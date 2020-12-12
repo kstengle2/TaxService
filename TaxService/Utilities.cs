@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Net;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace TaxService
 {
@@ -18,6 +17,31 @@ namespace TaxService
                 validZipCode = false;
             }
             return validZipCode;
+        }
+        public static string CallRestAPI(string url, string bearerToken)
+        {
+            try
+            {
+                HttpWebRequest myHttpWebRequest = null;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                myHttpWebRequest = (HttpWebRequest)HttpWebRequest.Create(url);
+                myHttpWebRequest.Timeout = 15000;
+                myHttpWebRequest.Method = "GET";
+                myHttpWebRequest.ContentType = "application/json";
+                myHttpWebRequest.Headers.Add("Authorization", "Bearer " + bearerToken);
+
+                WebResponse myWebResponse = myHttpWebRequest.GetResponse();
+                string result;
+                using (var reader = new StreamReader(myWebResponse.GetResponseStream()))
+                {
+                    result = reader.ReadToEnd();
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

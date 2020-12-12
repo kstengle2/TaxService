@@ -1,11 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using TaxService.TaxCalculators.Interface;
 
 namespace TaxService.TaxCalculators
@@ -13,50 +7,34 @@ namespace TaxService.TaxCalculators
 
     public class TaxJar : ITaxCalculator
     {
-        public string taxJarApiKey;
+        public string taxJarApiKey, TaxJarApiRateEnpoint;
         public TaxJar(IConfiguration configuration)
         {
             taxJarApiKey = configuration.GetValue<string>("AppConstants:TaxJarApiKey");
+            TaxJarApiRateEnpoint = configuration.GetValue<string>("AppConstants:TaxJarApiRateEnpoint");
         }
 
 
         public double GetTotalTax(string zip, double orderTotal)
         {
-            double ret = CallTaxJar("https://api.taxjar.com/v2/rates/" + zip);
-            return orderTotal * ret;
+            double rate = GetRate(zip);
+            return orderTotal * rate;
         }
 
         public double GetTaxRate(string zip)
-        {
-               double ret = CallTaxJar("https://api.taxjar.com/v2/rates/" + zip);
-            return ret;
+        {               
+            return GetRate(zip);
         }
-        private double CallTaxJar(string url)
+        private double GetRate(string zip)
         {
-            try
-            {
-                HttpWebRequest myHttpWebRequest = null;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                myHttpWebRequest = (HttpWebRequest)HttpWebRequest.Create(url);
-                myHttpWebRequest.Timeout = 15000;
-                myHttpWebRequest.Method = "GET";
-                myHttpWebRequest.ContentType = "application/json";
-                myHttpWebRequest.Headers.Add("Authorization", "Bearer " + taxJarApiKey);
-
-                WebResponse myWebResponse = myHttpWebRequest.GetResponse();
-                string result = "";
-                using (var reader = new StreamReader(myWebResponse.GetResponseStream()))
-                {
-                    result = reader.ReadToEnd();
-                }
-                var jsonObject = JsonConvert.DeserializeObject<Rootobject>(result).rate;
-                return double.Parse(jsonObject.combined_rate);
-            }catch(Exception ex)
-            {
-                throw ex;
-            }
+            string result = Utilities.CallRestAPI(TaxJarApiRateEnpoint + zip, taxJarApiKey);
+            var jsonObject = JsonConvert.DeserializeObject<Rootobject>(result).rate;
+            return double.Parse(jsonObject.combined_rate);
+            
         }
-
+        /* The classes are to Deserialize the return from TaxJar. 
+         * I keep these here because they are only for the TaxJar return and not needed anywhere else
+         */
         public class Rootobject
         {
             public Rate rate { get; set; }
